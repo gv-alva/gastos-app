@@ -1,0 +1,83 @@
+:root {
+  --bg-dark: #000000;
+  --card-dark: #121212;
+  --text-main: #ffffff;
+  --text-muted: #888888;
+  --accent: #d4af37;
+  --danger: #ef4444; /* Rojo para gastos */
+  --success: #22c55e; /* Verde para ingresos */
+  --border: #2a2a2a;
+}
+
+body {
+  margin: 0;
+  background-color: #1a1a1a; /* Fondo gris oscuro fuera del "celular" */
+  color: var(--text-main);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  display: flex;
+  justify-content: center;
+  min-height: 100vh;
+}
+
+#root {
+  width: 100%;
+  max-width: 480px; /* Ancho máximo de celular */
+  background-color: var(--bg-dark);
+  min-height: 100vh;
+  position: relative;
+  box-shadow: 0 0 20px rgba(0,0,0,0.5);
+}
+
+/* Utilidades */
+.btn {
+  padding: 14px;
+  border-radius: 12px;
+  border: none;
+  font-weight: 700;
+  font-size: 1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: transform 0.1s;
+}
+.btn:active { transform: scale(0.98); }
+
+.btn-ingreso { background: var(--success); color: #000; }
+.btn-gasto { background: var(--text-main); color: #000; }
+
+.input-dark {
+  background: var(--card-dark);
+  border: 1px solid var(--border);
+  padding: 16px;
+  border-radius: 12px;
+  color: white;
+  width: 100%;
+  box-sizing: border-box;
+  margin-bottom: 12px;
+  font-size: 1rem;
+}
+
+/* Scrollbar invisible para look nativo */
+::-webkit-scrollbar { display: none; }
+
+/* Forzar calendario oscuro en navegadores soportados */
+input[type="date"] {
+  color-scheme: dark;
+  position: relative;
+}
+
+/* Icono de calendario nativo más grande y clickable en todo el input */
+input[type="date"]::-webkit-calendar-picker-indicator {
+  background: transparent;
+  bottom: 0;
+  color: transparent;
+  cursor: pointer;
+  height: auto;
+  left: 0;
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: auto;
+}
