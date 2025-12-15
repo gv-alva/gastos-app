@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { motion, AnimatePresence } from 'framer-motion';
 import { LogOut, ArrowUp, ArrowDown, Trash2, Wallet, Plus, Minus, ChevronDown, ChevronUp, Calendar, Edit2 } from 'lucide-react';
 
+// URL de la API (Nube o Local)
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
 const formatoDinero = (monto) => new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN', maximumFractionDigits: 0 }).format(monto);
@@ -13,7 +14,7 @@ const obtenerNombreMes = (fechaStr) => {
   return new Intl.DateTimeFormat('es-ES', { month: 'long', year: 'numeric' }).format(date);
 };
 
-// --- LOGIN EXCLUSIVO (SOLO ENTRADA) ---
+// --- LOGIN REAL (Conectado a Base de Datos) ---
 const Login = ({ onLogin }) => {
   const [username, setUsername] = useState('');
   const [error, setError] = useState('');
@@ -22,26 +23,32 @@ const Login = ({ onLogin }) => {
   const handleLogin = async (e) => {
     e.preventDefault();
     if(!username) return;
+    
     setError('');
     setLoading(true);
 
     try {
-      // Solo intentamos hacer LOGIN
+      // 1. Preguntamos al Backend si el usuario existe
       const res = await fetch(`${API_URL}/api/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ nombre: username })
       });
+      
       const data = await res.json();
 
       if (res.ok) {
+        // 2. Si existe, iniciamos sesión con su ROL real de la BD
         onLogin({ name: data.nombre, role: data.rol });
       } else {
-        setError('Usuario no autorizado o no existe.');
+        // 3. Si no existe, mostramos error
+        setError('Acceso denegado: Usuario no registrado.');
       }
     } catch (err) {
-      setError('Error de conexión con el servidor.');
+      console.error(err);
+      setError('Error conectando con el servidor.');
     }
+    
     setLoading(false);
   };
 
@@ -60,7 +67,12 @@ const Login = ({ onLogin }) => {
             onChange={(e) => setUsername(e.target.value)} 
             autoFocus
           />
-          {error && <p style={{ color: 'var(--danger)', textAlign: 'center', fontSize: '0.9rem', marginBottom: '15px' }}>{error}</p>}
+          
+          {error && (
+            <div style={{ background: 'rgba(239, 68, 68, 0.1)', border: '1px solid var(--danger)', borderRadius: '8px', padding: '10px', marginBottom: '15px' }}>
+               <p style={{ color: 'var(--danger)', textAlign: 'center', fontSize: '0.9rem', margin: 0 }}>{error}</p>
+            </div>
+          )}
           
           <button type="submit" className="btn btn-gasto" style={{ width: '100%', background: 'var(--accent)', opacity: loading ? 0.7 : 1 }}>
             {loading ? 'Verificando...' : 'INGRESAR'}
@@ -71,7 +83,7 @@ const Login = ({ onLogin }) => {
   );
 };
 
-// --- GRUPO MENSUAL (Sin cambios) ---
+// --- GRUPO MENSUAL ---
 const GrupoMensual = ({ titulo, movimientos, user, onBorrar, onEditar }) => {
   const [isOpen, setIsOpen] = useState(true);
   const subtotal = movimientos.reduce((acc, curr) => curr.tipo === 'ingreso' ? acc + Number(curr.monto) : acc - Number(curr.monto), 0);
@@ -122,7 +134,7 @@ const GrupoMensual = ({ titulo, movimientos, user, onBorrar, onEditar }) => {
   );
 };
 
-// --- DASHBOARD (Sin cambios) ---
+// --- DASHBOARD ---
 const Dashboard = ({ user, onLogout }) => {
   const [movimientos, setMovimientos] = useState([]);
   const [modalOpen, setModalOpen] = useState(false);
